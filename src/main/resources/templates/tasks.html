@@ -5,17 +5,59 @@
     <title>Tasks</title>
 </head>
 <body>
+
 <h1>Task List</h1>
 
-<p><a th:href="@{/task/new}">Add Task</a></p>
+<p>
+    <a th:href="@{/task/new}">Add Task</a>
+</p>
+
+<form th:action="@{/tasks/filter}" method="get">
+    <label for="completed">Filter:</label>
+
+    <select id="completed" name="completed">
+        <option value="false">Pending</option>
+        <option value="true">Completed</option>
+    </select>
+
+    <button type="submit">Filter</button>
+    <a th:href="@{/tasks}">Show All</a>
+</form>
+
+<hr>
 
 <div th:each="task : ${tasks}">
-    <p th:text="${task.name}">Task Name</p>
-    <p th:text="${task.description}">Task Description</p>
-    <p th:text="${task.dueDate}">Due Date</p>
-    <span th:text="${task.completed ? 'Completed' : 'Pending'}">Status</span>
-    <a th:href="@{/task/edit/{id}(id=${task.id})}">Edit</a>
+    <p>
+        <strong>Name:</strong>
+        <span th:text="${task.name}">Task Name</span>
+    </p>
+
+    <p>
+        <strong>Description:</strong>
+        <span th:text="${task.description}">Task Description</span>
+    </p>
+
+    <p>
+        <strong>Due date:</strong>
+        <span th:text="${task.dueDate}">Due Date</span>
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        <span th:text="${task.completed ? 'Completed' : 'Pending'}">
+            Status
+        </span>
+    </p>
+
+    <a th:href="@{/tasks/edit/{id}(id=${task.id})}">Edit</a>
+    <form th:action="@{/tasks/delete/{id}(id=${task.id})}"
+          method="post"
+          style="display: inline;">
+        <button type="submit">Delete</button>
+    </form>
+
     <hr>
 </div>
+
 </body>
 </html>

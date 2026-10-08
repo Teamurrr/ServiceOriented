@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -9,14 +10,23 @@ public class TaskModel {
     private Long id;
     private String name;
     private String description;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dueDate;
+
     private boolean completed;
 
     public TaskModel() {
     }
 
-    public TaskModel(Long id, String name, String description, LocalDate dueDate, boolean completed) {
+    @Builder
+    public TaskModel(
+            Long id,
+            String name,
+            String description,
+            LocalDate dueDate,
+            boolean completed
+    ) {
         this.id = id;
         this.name = name;
         this.description = description;

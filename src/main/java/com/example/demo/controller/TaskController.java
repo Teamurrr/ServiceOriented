@@ -1,45 +1,27 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.TaskModel;
+import com.example.demo.service.TaskService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
 public class TaskController {
 
-    private final List<TaskModel> tasks = new ArrayList<>();
-    private long nextId = 3L;
+    private final TaskService taskService;
 
-    public TaskController() {
-        tasks.add(new TaskModel(
-                1L,
-                "Test Task 1",
-                "Description for Task 1",
-                LocalDate.now(),
-                false
-        ));
-
-        tasks.add(new TaskModel(
-                2L,
-                "Test Task 2",
-                "Description for Task 2",
-                LocalDate.now().plusDays(1),
-                true
-        ));
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @GetMapping("/tasks")
     public String listTasks(Model model) {
-        model.addAttribute("tasks", tasks);
+        model.addAttribute("tasks", taskService.findAll());
         return "tasks";
     }
 
@@ -49,12 +31,9 @@ public class TaskController {
         return "task-form";
     }
 
-    @GetMapping("/task/edit/{id}")
+    @GetMapping({"/task/edit/{id}", "/tasks/edit/{id}"})
     public String editTask(@PathVariable Long id, Model model) {
-        TaskModel task = tasks.stream()
-                .filter(item -> item.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        TaskModel task = taskService.findById(id);
 
         if (task == null) {
             return "redirect:/tasks";
@@ -65,31 +44,36 @@ public class TaskController {
     }
 
     @PostMapping("/task/save")
-    public String saveTask(@ModelAttribute TaskModel taskModel, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
+    public String saveTask(
+            @Valid @ModelAttribute("taskModel") TaskModel taskModel,
+            BindingResult result
+    ) {
+        if (result.hasErrors()) {
             return "task-form";
         }
 
-        if (taskModel.getId() == null) {
-            taskModel.setId(nextId++);
-            tasks.add(taskModel);
-        } else {
-            int existingIndex = -1;
-            for (int i = 0; i < tasks.size(); i++) {
-                if (tasks.get(i).getId().equals(taskModel.getId())) {
-                    existingIndex = i;
-                    break;
-                }
-            }
+        taskService.save(taskModel);
+        return "redirect:/tasks";
+    }
 
-            if (existingIndex >= 0) {
-                tasks.set(existingIndex, taskModel);
-            } else {
-                tasks.add(taskModel);
-                nextId = Math.max(nextId, taskModel.getId() + 1);
-            }
+    @PostMapping({"/task/delete/{id}", "/tasks/delete/{id}"})
+    public String deleteTask(@PathVariable Long id) {
+        if (taskService.findById(id) != null) {
+            taskService.deleteById(id);
         }
 
         return "redirect:/tasks";
+    }
+
+    @GetMapping("/tasks/filter")
+    public String filterTasks(
+            @RequestParam("completed") boolean completed,
+            Model model
+    ) {
+        List<TaskModel> filteredTasks =
+                taskService.findByCompleted(completed);
+
+        model.addAttribute("tasks", filteredTasks);
+        return "tasks";
     }
 }
