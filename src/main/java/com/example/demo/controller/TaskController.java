@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 
 @Controller
 public class TaskController {
@@ -74,6 +76,28 @@ public class TaskController {
                 taskService.findByCompleted(completed);
 
         model.addAttribute("tasks", filteredTasks);
+        return "tasks";
+    }
+
+
+    @GetMapping("/tasks/filter/date")
+    public String filterTasksByDueDate(
+            @RequestParam("startDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+
+            @RequestParam("endDate")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate,
+
+            Model model
+    ) {
+        List<TaskModel> filteredTasks =
+                taskService.findByDueDateBetween(startDate, endDate);
+
+        model.addAttribute("tasks", filteredTasks);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         return "tasks";
     }
 }

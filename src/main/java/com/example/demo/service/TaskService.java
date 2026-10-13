@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.time.LocalDate;
 @Service
 public class TaskService {
 
@@ -32,6 +32,18 @@ public class TaskService {
 
     public List<TaskModel> findByCompleted(boolean completed) {
         return taskRepository.findByCompleted(completed)
+                .stream()
+                .map(this::convertToModel)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<TaskModel> findByDueDateBetween(
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        return taskRepository
+                .findByDueDateBetween(startDate, endDate)
                 .stream()
                 .map(this::convertToModel)
                 .collect(Collectors.toList());

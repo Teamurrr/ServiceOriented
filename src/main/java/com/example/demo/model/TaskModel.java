@@ -4,10 +4,21 @@ import lombok.Builder;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 
 public class TaskModel {
 
     private Long id;
+
+    @NotBlank(message = "Name is required")
+    @Size(
+            min = 3,
+            max = 100,
+            message = "Name must be between min and 100 charactersd"
+    )
+
     private String name;
     private String description;
 

@@ -24,6 +24,32 @@
     <a th:href="@{/tasks}">Show All</a>
 </form>
 
+<h2>Filter by due date</h2>
+
+<form th:action="@{/tasks/filter/date}" method="get">
+    <div>
+        <label for="startDate">Start date:</label>
+        <input
+                id="startDate"
+                name="startDate"
+                type="date"
+                th:value="${startDate}"
+                required>
+    </div>
+
+    <div>
+        <label for="endDate">End date:</label>
+        <input
+                id="endDate"
+                name="endDate"
+                type="date"
+                th:value="${endDate}"
+                required>
+    </div>
+
+    <button type="submit">Filter by date</button>
+</form>пше
+
 <hr>
 
 <div th:each="task : ${tasks}">
